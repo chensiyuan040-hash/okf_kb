@@ -1,0 +1,51 @@
+# gate.yaml — 门与告警的单一来源(AD-7:"门与告警共读,禁止各自硬编码")。
+# 三段:
+#   gates:  门清单(level: block=阻断→批次不放行;warn=告警→只报,并入巡检摘要)
+#   alerts: 阈值(心跳/陈旧度/磁盘/长度比/僵尸锁/重试链)——编排器与 probe 共读
+#   notify: 收件人(凭据 MM_URL/MM_TOKEN 在 .env,0600)
+# 改这里而不要改代码;门项增删在 gates.py 里实现对应检查函数后同步登记。
+
+version: 1
+
+gates:
+  - {code: lint, level: block, desc: "wiki_lint:断链(Missing)/孤儿(Orphans)清零"}
+  - {code: lint-review, level: warn, desc: "wiki_lint:歧义/矛盾/gaps 分类处置提示(不得丢弃,人审聚焦点)"}
+  - {code: schema, level: block, desc: "iwe schema validate + vault-health --gate(基座 okf-tidy gate.sh)"}
+  - {code: structure, level: block, desc: "体系复核:iwe find,本批新页必须被某 synthesis 枢纽约束"}
+  - {code: registry, level: block, desc: "registry 外页面 = 绕过工具写入的证据"}
+  - {code: status, level: block, desc: "本批 source 页 status ∈ {draft, stable, deprecated}"}
+  - {code: raw-immutable, level: block, desc: "raw 与批次前基线快照比对(只增不改)"}
+  - {code: wiki-status, level: block, desc: "blockingDiagnostics 空 + okf-0.2 声明在"}
+  - {code: extraction, level: block, desc: "源包 extraction_status 非 success → 阻断候补、人工处置"}
+  - {code: extraction-length, level: warn, desc: "提取文本长度比异常(过短)"}
+  - {code: knowledge-score, level: warn, desc: "本批新增/变更页内容质量评分(标准未配置时自动跳过)"}
+
+# 增量知识评分标准(2026-11-03 占位):项目与分值待确认,确认后填入即启用,零代码改动。
+# 可用评分项(判定逻辑在 pipeline/gates.py,N/A 项记满分不惩罚):
+#   source_page(sources/ 页): provenance_fields 溯源四字段 / key_terms 5-15 条 /
+#     lint_clean 无断链孤儿归因 / body_solid 正文充实无占位 / raw_exists 源包在 /
+#     links_out 链出≥1 / summary 摘要非空
+#   other_page(其余页): lint_clean / definition 首段定义 / links_min2 链出≥2 /
+#     body_solid / summary / evolution 更新页有演进小节(新建页 N/A) /
+#     aliases entity 页别名(非 entity 页 N/A)
+# 分值 = 权重,单页得分归一到 0-100;low_score/min_avg 一并在此定。
+knowledge_score:
+  source_page: {}      # 例:{provenance_fields: 20, key_terms: 15, lint_clean: 15, body_solid: 15, raw_exists: 15, links_out: 10, summary: 10}
+  other_page: {}       # 例:{lint_clean: 20, definition: 15, links_min2: 15, body_solid: 15, summary: 10, evolution: 15, aliases: 10}
+  low_score: 60        # 单页低于此 = 低分(人审聚焦)
+  min_avg: 70          # 批均分低于此 = 门未通过(warn)
+
+alerts:
+  heartbeat_stale_hours: 30        # 心跳超时(日批节奏):"流水线没跑"
+  staleness_sla_hours: 72          # 某源超 SLA 无成功批次;"没新数据"不算(看 last_new_data_ts)
+  disk_used_percent: 80            # 宿主磁盘告警线
+  extraction_length_ratio: 0.2     # 提取文本字节/原件字节 低于此值 → 长度比告警
+  zombie_lock_hours: 24            # writer.lock 僵尸锁回收线(AD-9)
+  raw_immutable_max_mb: 2048       # 基线快照体积上限(超)只记 size 不记 hash… 见 gates.py 说明
+  retry_delays_seconds: [30, 30, 30]   # 通知降级链:重试 3×30s
+
+notify:
+  channels: []          # Mattermost 频道 id(部署期填;与 dm_user_ids 二选一或并用)
+  dm_user_ids: []       # Mattermost 用户 id(DM 形态)
+  bm_channels: []       # BM 独立收件人(AD-10)
+  bm_dm_user_ids: []

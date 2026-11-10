@@ -1,0 +1,6 @@
+{
+  "name": "okf-kb-pi-llm-wiki",
+  "version": "0.6.3-bundle",
+  "private": true,
+  "description": "pi-llm-wiki 0.6.3 MCP server, esbuild single-file bundle + qmd sidecar deps (linux-x64). Entry: node mcp-server.mjs"
+}

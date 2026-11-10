@@ -1,0 +1,16 @@
+_bmad/
+
+# Python
+__pycache__/
+*.pyc
+
+# 生产线运行产物(不进 git;vault 各自是独立 git 仓)
+vaults/
+logs/
+pipeline/state/
+pipeline/spool/
+
+# 部署本地配置(凭据与内网盘点清单;模板 sources.example.yaml 与 gate.yaml 进 git)
+pipeline/config/.env
+pipeline/config/sources.yaml
+.env

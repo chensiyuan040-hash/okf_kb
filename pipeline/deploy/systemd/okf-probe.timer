@@ -1,0 +1,13 @@
+# 巡检节奏:每 2 小时;心跳陈旧线 30h,巡检频率足够在告警线内兜底;
+# 与日批(02:17±10min)错开分钟,避免抢锁与资源争用(probe 不占锁,仅为稳妥)。
+[Unit]
+Description=okf-kb 巡检定时器
+
+[Timer]
+OnCalendar=*-*-* 00/2:41:00
+RandomizedDelaySec=300
+Persistent=true
+Unit=okf-probe.service
+
+[Install]
+WantedBy=timers.target

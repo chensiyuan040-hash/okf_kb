@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "llm-wiki": {
+      "command": "node",
+      "args": ["/opt/okf-kb/tools/pi-llm-wiki/mcp-server.mjs"],
+      "env": {
+        "WIKI_ROOT": ".",
+        "LLM_WIKI_DISABLE_TOOLS": "wiki_ingest"
+      }
+    }
+  }
+}

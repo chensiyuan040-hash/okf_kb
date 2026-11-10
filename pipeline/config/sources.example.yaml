@@ -1,0 +1,35 @@
+# sources.yaml — 各源抽取范围(实施配置项;复制为 sources.yaml 后填)。
+# 未配置的源:dispatch run --source 该源时明确报错退出(不静默跳过);
+# dispatch run --all 只跑已配置的源并逐源记录 skip 原因。
+
+sources:
+  # 通用 exclude:fnmatch glob,访问层扫描时排除(提取层对 image 显式失败,exclude 是
+  # 运营旋钮——把未立项形态/垃圾文件挡在批次之外,让批次可整体成功)。
+  common_exclude: &common_exclude
+    - "*.png"
+    - "*.jpg"
+    - "*.jpeg"
+    - "*.gif"
+    - "*.bmp"
+    - "*.tif"
+    - "*.tiff"
+    - "*.webp"
+
+  confluence:
+    base_url: "https://confluence.内网域名"      # 与 .env 的 CF_BASE_URL 同值亦可,这里显式留档
+    spaces: []          # 抽取的 space key 清单(实施前盘点 Q7)
+    # 认证:服务账号 PAT,落 .env 的 CF_TOKEN(Cloud/Server 形态与认证方式待内网验证 Q1)
+  zentao:
+    base_url: "http://zentao.内网域名"
+    products: []        # 产品或项目 id 清单(Q7);类型:bug/story
+    types: [bug, story]
+    # 认证:Token 请求头,落 .env 的 ZT_TOKEN(API 版本待内网验证 Q2)
+  nextcloud:
+    base_url: "https://nc.内网域名"
+    dirs: []            # 网盘目录清单(Q7,相对 remote.php/dav/files/<user>/)
+    exclude: *common_exclude
+    # 认证:应用密码,落 .env 的 NC_USER / NC_APP_PASSWORD(ETag/-gzip 细节待验证 Q3)
+  bm:
+    whitelist: []       # BM 白名单目录(绝对路径;实施前盘点 Q4/Q8)
+    exclude: *common_exclude   # 对文件名匹配(扫描件图片未立项 OCR 前的挡板)
+    # 账本/候选清单随封存回密文包,不落本文件的明文盘位置(修订③)

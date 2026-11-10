@@ -1,0 +1,12 @@
+# 库根 .gitignore(模板)——版本库只管知识层(.llm-wiki/wiki 与 meta),原料与游标不进 git
+.fetch/
+raw-inbox/
+reference-from-legacy/
+.llm-wiki/outputs/
+# meta 例外(与 pipeline/init_vault.py GITIGNORE_LINES 对齐):
+# qmd 为生成物可 rebuild;writer.lock/session-gate 为运行态锁,入库会把克隆库锁死
+.llm-wiki/meta/qmd/
+.llm-wiki/meta/writer.lock/
+.llm-wiki/meta/session-gate.json
+# 检索遥测(bundle 第十一处补丁):纯运营数据,可丢可停记
+.llm-wiki/meta/retrieval-log.jsonl

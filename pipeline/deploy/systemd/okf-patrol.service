@@ -1,0 +1,22 @@
+# okf-kb 库质量巡检(修订②:lint 走本机管理通道,通知并入统一告警通道)。
+# 库清单落 /etc/okf-kb/patrol-vaults:OKF_PATROL_VAULTS="/data/kb-tech /data/kb-ops"
+# (目录属运行用户可读;该文件仅列路径,不含凭据)
+[Unit]
+Description=okf-kb 库质量巡检(逐库 lint + 统一告警)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=okfkb
+Group=okfkb
+WorkingDirectory=/opt/okf-kb
+Environment=OKF_KB_ROOT=/opt/okf-kb
+EnvironmentFile=-/etc/okf-kb/patrol-vaults
+# 逐库巡检;异常不中断其余库;退出码取最重(3 未送达 > 1 有异常 > 0)
+ExecStart=/bin/bash -c 'if [ -z "$OKF_PATROL_VAULTS" ]; then echo "[patrol] OKF_PATROL_VAULTS 为空或缺失(/etc/okf-kb/patrol-vaults),无可巡检库" >&2; exit 2; fi; rc=0; for v in $OKF_PATROL_VAULTS; do \
+  /opt/okf-kb/scripts/kb-patrol.sh "$v" /opt/okf-kb; c=$?; \
+  if [ "$c" = 3 ]; then rc=3; elif [ "$c" != 0 ] && [ "$rc" = 0 ]; then rc=$c; fi; done; exit $rc'
+TimeoutStartSec=1800
+Nice=10
+SuccessExitStatus=0 1 3

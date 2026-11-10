@@ -1,0 +1,16 @@
+# okf-kb 巡检(心跳/陈旧度/磁盘/僵尸锁/失败批/告警补发) —— 不抢调度锁,在批之间跑。
+[Unit]
+Description=okf-kb 巡检(dispatch probe)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=okfkb
+Group=okfkb
+WorkingDirectory=/opt/okf-kb
+Environment=OKF_KB_ROOT=/opt/okf-kb
+ExecStart=/usr/bin/python3 -m pipeline.dispatch probe
+TimeoutStartSec=600
+Nice=10
+SuccessExitStatus=0 1 3

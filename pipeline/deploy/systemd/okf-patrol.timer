@@ -1,0 +1,12 @@
+# 早晨巡检:与日批(02:17)拉开距离;08:37 错峰(同 crontab 惯例)。
+[Unit]
+Description=okf-kb 库质量巡检定时器
+
+[Timer]
+OnCalendar=*-*-* 08:37:00
+RandomizedDelaySec=600
+Persistent=true
+Unit=okf-patrol.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,19 @@
+# okf-kb 日批(自动线三源;BM 不在自动线) —— 概要设计 §5.1 / §8.1
+# 安装:见 pipeline/README.md「调度安装」;路径占位 /opt/okf-kb 与运行用户按部署替换。
+[Unit]
+Description=okf-kb 日批(dispatch run --all)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=okfkb
+Group=okfkb
+WorkingDirectory=/opt/okf-kb
+Environment=OKF_KB_ROOT=/opt/okf-kb
+# 凭据经 config/.env(0600)读取;不落 EnvironmentFile,避免进 systemd 环境面
+ExecStart=/usr/bin/python3 -m pipeline.dispatch run --all
+TimeoutStartSec=7200
+Nice=10
+# 退出码 3 = 告警未送达(需处置);批量失败由心跳/probe 兜底,不让 systemd 反复重启
+SuccessExitStatus=0 1 3
