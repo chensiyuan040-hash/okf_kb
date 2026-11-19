@@ -1,0 +1,16 @@
+# okf-kb 周期对账(周批;§4.4 AD-6) —— 产出 deleted[]/moved[] 并告警,一期不自动删页。
+[Unit]
+Description=okf-kb 周期对账(dispatch reconcile --all)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=okfkb
+Group=okfkb
+WorkingDirectory=/opt/okf-kb
+Environment=OKF_KB_ROOT=/opt/okf-kb
+ExecStart=/usr/bin/python3 -m pipeline.dispatch reconcile --all
+TimeoutStartSec=7200
+Nice=10
+SuccessExitStatus=0 1 3

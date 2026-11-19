@@ -1,0 +1,19 @@
+# source.yaml —— sources/** 的 OKF schema(拷入库根 .iwe/schemas/)
+# 设计(概要设计 2026-10-16 §7.3):
+#   required 仅 [type]——origin_url 不强制(BM 保密库必须能省略;省略即未知,
+#   不引入 url_unknown: true 之类的造假值);
+#   origin_url 存在时须是 http(s)(pattern 只对出现的值生效,机器可校的才校);
+#   source_meta 扁平铺开的源特定字段(page_id/space/…)不进 schema——
+#   显式枚举源特例 = 通用层加源特例(旧 pipeline 老路),不重蹈。
+# ⚠ 挂载顺序敏感:存量重灌完成后再在 config.toml 挂 [schemas.source]
+#   match=["sources/**"](先回填后启用,见启动手册 A-5)。
+$schema: https://document-schema.org/draft/2026-06/schema
+frontmatter:
+  type: object
+  required: [type]
+  properties:
+    type: { const: source }
+    status: { enum: [skeleton, draft, stable, deprecated] }
+    origin_url: { pattern: "^https?://" }
+    source_system: { enum: [confluence, nextcloud, zentao, bm] }
+    source_updated_at: { pattern: "^\\d{4}-\\d{2}-\\d{2}T" }

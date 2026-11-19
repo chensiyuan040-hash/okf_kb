@@ -1,0 +1,12 @@
+# 对账节奏:P2 起随日批运行;大 space 性能实测后(R4)再评估周期,暂定周日凌晨。
+[Unit]
+Description=okf-kb 周期对账定时器
+
+[Timer]
+OnCalendar=Sun *-*-* 03:23:00
+RandomizedDelaySec=1800
+Persistent=true
+Unit=okf-reconcile.service
+
+[Install]
+WantedBy=timers.target

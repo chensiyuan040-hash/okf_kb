@@ -1,0 +1,12 @@
+# 日批节奏(§5.1):夜间低峰(R5 限流),错峰非整点分钟避免与平台作业撞点。
+[Unit]
+Description=okf-kb 日批定时器
+
+[Timer]
+OnCalendar=*-*-* 02:17:00
+RandomizedDelaySec=600
+Persistent=true
+Unit=okf-run.service
+
+[Install]
+WantedBy=timers.target
